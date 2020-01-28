@@ -10,7 +10,7 @@ exports.get_sensor_reading = function(req, res){
     sql = 'select * from Sensor order by sensorId desc limit 1';
     con.query(sql, function (err, result) {
         if (err) throw err;
-        res.send(result);
+        res.send(result[0]);
     });
 }
 
