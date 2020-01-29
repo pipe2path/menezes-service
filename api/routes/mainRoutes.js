@@ -3,7 +3,7 @@ module.exports = function(app){
 
     app.route('/sensor')
         .get(main.get_sensor_reading)
-        .post(main.post_sensor_reading)
+        .post(main.post_sensor_reading);
 
     app.route('/traffic')
         .post(main.post_traffic_reading);
