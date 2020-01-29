@@ -23,10 +23,10 @@ exports.post_sensor_reading = function(req, res){
         ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
 
     if (sensorId.toUpperCase() == 'A') {
-        sql = "insert into Sensor (sensorAFlag, sensorATimestamp) values (1, '" + datelocal + "')" ;
+        sql = "insert into Sensor (sensorAFlag, sensorATimestamp, sensorBFlag) values (1, '" + datelocal + "', -1)" ;
     }
     if (sensorId.toUpperCase() == 'B') {
-        sql = "insert into Sensor (sensorBFlag, sensorBTimestamp) values (1, '" + datelocal + "')";
+        sql = "insert into Sensor (sensorBFlag, sensorBTimestamp, sensorAFlag) values (1, '" + datelocal + "', -1)";
     }
 
     con.query(sql, function  (err, result) {
