@@ -57,7 +57,7 @@ exports.post_traffic_reading = function(req, res){
 
 exports.get_items_needed = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    sql = "select i.Name, i.Brand, i.Description, r.CustomerName, r.PhoneNumber from Item i inner join Request r on i.itemId = r.ItemId";
+    sql = "select i.Name, i.Brand, i.Description, r.CustomerName, r.PhoneNumber from item i inner join request r on i.itemId = r.ItemId";
 
     con.query(sql, function (err, result) {
         if (err) throw err;
