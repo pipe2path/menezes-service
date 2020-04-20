@@ -57,10 +57,46 @@ exports.post_traffic_reading = function(req, res){
 
 exports.get_items_needed = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    sql = "select i.Name, i.Brand, i.Description, r.CustomerName, r.PhoneNumber from item i inner join request r on i.itemId = r.ItemId";
+    sql = "select i.ItemId, i.Name, i.Brand from item i left join request r on i.itemId = r.ItemId " +
+        "group by i.ItemId, i.Name, i.Brand";
 
     con.query(sql, function (err, result) {
         if (err) throw err;
         res.send(result);
     });
 }
+
+exports.post_items_needed = function (req, res){
+    res.setHeader('Access-Control-Allow-Origin','*');
+    const name = req.body.name;
+    const phone = req.body.phone;
+    const items = req.body.items;
+    var sql = '';
+
+    for(let i=0; i<items.length; i++) {
+        const itemId = items[i].ItemId;
+        sql = 'select ItemId from item where itemId = ' + itemId ;
+        con.query(sql, function(err, result){
+            if (itemId == undefined){
+                // insert item and request row
+                var sql2 = "insert item (Name) values ('" + items[i].Name + "')";
+                con.query(sql2, function(err, result){
+                    if(err) throw err;
+                    var insertedId = result.insertId;
+                    var sql3 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + phone + "', " + insertedId + ")";
+                    con.query(sql3, function(err, result){
+                        if (err) throw err;
+                    })
+                })
+            }
+            else if(result[0].ItemId == itemId){
+                // just insert request row
+                var sql2 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + phone + "', " + itemId + ")";
+                con.query(sql2, function(err, result){
+                    if(err) throw err;
+                })
+            }
+        })
+    }
+}
+

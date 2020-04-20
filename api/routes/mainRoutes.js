@@ -10,5 +10,6 @@ module.exports = function(app){
 
     // twilio-hack-coronavirus project Apr, 2020
     app.route('/items')
-        .get(main.get_items_needed);
+        .get(main.get_items_needed)
+        .post(main.post_items_needed);
 }
