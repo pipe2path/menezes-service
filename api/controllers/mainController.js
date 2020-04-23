@@ -1,6 +1,9 @@
 var log4js = require('log4js');
 var logger = log4js.getLogger();
 var con = require('../common/database.js');
+var aws = require('aws-sdk');
+var path = require("path");
+
 logger.level = 'debug';
 
 // gets the latest Sensor reading. When a person activates the sensor, this request is called
@@ -57,8 +60,8 @@ exports.post_traffic_reading = function(req, res){
 
 exports.get_items_needed = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    sql = "select i.ItemId, i.Name, i.Brand from item i left join request r on i.itemId = r.ItemId " +
-        "group by i.ItemId, i.Name, i.Brand";
+    sql = "select i.itemId, i.name, i.brand from item i left join request r on i.itemId = r.itemId " +
+        "group by i.itemId, i.name, i.brand";
 
     con.query(sql, function (err, result) {
         if (err) throw err;
@@ -74,7 +77,7 @@ exports.post_items_needed = function (req, res){
     var sql = '';
 
     for(let i=0; i<items.length; i++) {
-        const itemId = items[i].ItemId;
+        const itemId = items[i].itemId;
         sql = 'select ItemId from item where itemId = ' + itemId ;
         con.query(sql, function(err, result){
             if (itemId == undefined){
@@ -98,5 +101,46 @@ exports.post_items_needed = function (req, res){
             }
         })
     }
+}
+
+exports.post_img_submit = function(req, res){
+    const itemId = req.body.itemId;
+    const submittedBy = req.body.name;
+    const imageData = req.body.image;
+
+    aws.config.loadFromPath('./config.json');
+    res.setHeader('Access-Control-Allow-Origin','*');
+
+    var dateLocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
+        ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
+    var dateForFile = dateLocal.replace(/:/g, '').replace(/ /g, '').replace(/-/g, '');
+    var filename = path.join("corona-" + itemId + "-" + dateForFile + ".jpg");
+
+    let buf = new Buffer(imageData.replace(/^data:image\/\w+;base64,/, ""),'base64')
+    var s3Bucket = new aws.S3( { params: {Bucket: 'mzsgarage-images'} } );
+    var data = {
+        Key: filename,
+        Body: buf,
+        ContentEncoding: 'base64',
+        ContentType: 'image/jpeg'
+    };
+    s3Bucket.putObject(data, function(err, data){
+        if (err) {
+            console.log(err);
+            console.log('Error uploading data: ', data);
+            throw err;
+        } else {
+            console.log('successfully uploaded.');
+        }
+    });
+
+    imagePath = 'https://s3-us-west-1.amazonaws.com/mzsgarage-images/' + filename;
+
+    // update database
+    var sql = "insert image (itemId, submittedBy, submitDate, image) values(" +
+             itemId + ", '" + submittedBy + "', '" + dateLocal + "', '" + imagePath + "')";
+    con.query(sql);
+
+    res.send('image saved');
 }
 

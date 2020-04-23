@@ -12,4 +12,7 @@ module.exports = function(app){
     app.route('/items')
         .get(main.get_items_needed)
         .post(main.post_items_needed);
+
+    app.route('/upload')
+        .post(main.post_img_submit);
 }
