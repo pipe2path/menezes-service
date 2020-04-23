@@ -108,7 +108,7 @@ exports.post_img_submit = function(req, res){
     const submittedBy = req.body.name;
     const imageData = req.body.image;
 
-    aws.config.loadFromPath('./config.json');
+    //aws.config.loadFromPath('./config.json');
     res.setHeader('Access-Control-Allow-Origin','*');
 
     var dateLocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
@@ -117,7 +117,7 @@ exports.post_img_submit = function(req, res){
     var filename = path.join("corona-" + itemId + "-" + dateForFile + ".jpg");
 
     let buf = new Buffer(imageData.replace(/^data:image\/\w+;base64,/, ""),'base64')
-    var s3Bucket = new aws.S3( { params: {Bucket: 'mzsgarage-images'} } );
+    var s3Bucket = new aws.S3( { accessKeyId: process.env.S3_KEY, secretAccessKey: process.env.S3_SECRET, params: {Bucket: 'mzsgarage-images'} } );
     var data = {
         Key: filename,
         Body: buf,
