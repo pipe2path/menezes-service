@@ -6,58 +6,6 @@ var path = require("path");
 
 logger.level = 'debug';
 
-// gets the latest Sensor reading. When a person activates the sensor, this request is called
-exports.get_sensor_reading = function(req, res){
-    res.setHeader('Access-Control-Allow-Origin','*');
-
-    sql = 'select * from Sensor order by sensorId desc limit 1';
-    con.query(sql, function (err, result) {
-        if (err) throw err;
-        res.send(result[0]);
-    });
-}
-
-// updates Sensor table to set the flag for the sensor that was just activated
-exports.post_sensor_reading = function(req, res){
-    res.setHeader('Access-Control-Allow-Origin','*');
-
-    sensorId = req.query.id;
-    datelocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
-        ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
-
-    if (sensorId.toUpperCase() == 'A') {
-        sql = "insert into Sensor (sensorAFlag, sensorATimestamp, sensorBFlag) values (1, '" + datelocal + "', -1)" ;
-    }
-    if (sensorId.toUpperCase() == 'B') {
-        sql = "insert into Sensor (sensorBFlag, sensorBTimestamp, sensorAFlag) values (1, '" + datelocal + "', -1)";
-    }
-
-    con.query(sql, function  (err, result) {
-        if (err) throw err;
-        res.send('Sensor: ' + sensorId.toUpperCase() + ' Updated');
-    });
-}
-
-// updates Traffic table to signify an In or Out activity
-exports.post_traffic_reading = function(req, res){
-    res.setHeader('Access-Control-Allow-Origin','*');
-
-    directionFlag = req.query.id;
-    datelocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
-        ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
-
-    if (directionFlag == 'in')
-        sql = "insert into Traffic (inCount, inTimestamp) values (1, '" + datelocal + "')";
-
-    if (directionFlag == 'out')
-        sql = "insert into Traffic (outCount, outTimestamp) values (1, '" + datelocal + "')";
-
-    con.query(sql, function  (err, result) {
-        if (err) throw err;
-        res.send('Activity: ' + directionFlag.toUpperCase() + ' Updated');
-    });
-}
-
 exports.get_items_needed = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
     sql = "select i.itemId, i.name, i.brand from item i left join request r on i.itemId = r.itemId " +
@@ -77,17 +25,21 @@ exports.post_items_needed = function (req, res){
     var sql = '';
 
     var updatedPhone = "1" + phone;
+    var dateLocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
+        ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
+
     for(let i=0; i<items.length; i++) {
         const itemId = items[i].itemId;
         sql = 'select ItemId from item where itemId = ' + itemId ;
         con.query(sql, function(err, result){
             if (itemId == undefined){
                 // insert item and request row
-                var sql2 = "insert item (Name) values ('" + items[i].Name + "')";
+                var sql2 = "insert item (name) values ('" + items[i].name + "')";
                 con.query(sql2, function(err, result){
                     if(err) throw err;
                     var insertedId = result.insertId;
-                    var sql3 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + updatedPhone + "', " + insertedId + ")";
+                    var sql3 = "insert request (customerName, phoneNumber, itemId, dateRequested) values ('"
+                        + name + "', '" + updatedPhone + "', " + insertedId + ", '" + dateLocal + "')";
                     con.query(sql3, function(err, result){
                         if (err) throw err;
                     })
@@ -95,7 +47,8 @@ exports.post_items_needed = function (req, res){
             }
             else if(result[0].ItemId == itemId){
                 // just insert request row
-                var sql2 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + updatedPhone + "', " + itemId + ")";
+                var sql2 = "insert request (customerName, phoneNumber, itemId, dateRequested) values ('"
+                    + name + "', '" + updatedPhone + "', " + itemId + ", '" + dateLocal + "')";
                 con.query(sql2, function(err, result){
                     if(err) throw err;
                 })
