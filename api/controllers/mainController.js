@@ -116,7 +116,7 @@ exports.post_img_submit = function(req, res){
     var dateForFile = dateLocal.replace(/:/g, '').replace(/ /g, '').replace(/-/g, '');
     var filename = path.join("corona-" + itemId + "-" + dateForFile + ".jpg");
 
-    let buf = new Buffer(imageData.replace(/^data:image\/\w+;base64,/, ""),'base64')
+    let buf = new Buffer.from(imageData.replace(/^data:image\/\w+;base64,/, ""),'base64')
     var s3Bucket = new aws.S3( { accessKeyId: process.env.S3_KEY, secretAccessKey: process.env.S3_SECRET, params: {Bucket: 'mzsgarage-images'} } );
     var data = {
         Key: filename,
@@ -130,17 +130,43 @@ exports.post_img_submit = function(req, res){
             console.log('Error uploading data: ', data);
             throw err;
         } else {
-            console.log('successfully uploaded.');
+            console.log('successfully uploaded to S3.');
+            updateDB();
+            sendSMS();
         }
     });
 
-    imagePath = 'https://s3-us-west-1.amazonaws.com/mzsgarage-images/' + filename;
+    function updateDB() {
+        imagePath = 'https://s3-us-west-1.amazonaws.com/mzsgarage-images/' + filename;
 
-    // update database
-    var sql = "insert image (itemId, submittedBy, submitDate, image) values(" +
-             itemId + ", '" + submittedBy + "', '" + dateLocal + "', '" + imagePath + "')";
-    con.query(sql);
+        // update database
+        var sql = "insert image (itemId, submittedBy, submitDate, image) values(" +
+            itemId + ", '" + submittedBy + "', '" + dateLocal + "', '" + imagePath + "')";
+        con.query(sql);
+    }
 
-    res.send('image saved');
+    function sendSMS(){
+        // send mms message
+        const smsAccountId = process.env.SMSACCOUNTID;
+        const smsAccountToken = process.env.SMSACCOUNTTOKEN;
+        var client = require('twilio')(smsAccountId, smsAccountToken);
+        sql = "select it.name, it.brand, i.submittedBy, i.submitDate, i.image, r.customerName, r.phoneNumber from image i " +
+            "inner join item it on i.itemId = it.itemId inner join request r on i.itemid = r.itemid " +
+            "where r.itemId = " + itemId + " and r.requestid not in (select requestid from transmission)" ;
+        con.query(sql, function(err, result){
+            if (err) throw err;
+            result.forEach(function(result) {
+                client.messages.create({
+                    body: 'The item you requested has been found.' + result.submittedBy + ' found it.',
+                    from: '+19092459877',
+                    mediaUrl: [result.image],
+                    to: result.phoneNumber
+                }).then(message => console.log(message.status)).done();
+            })
+
+        })
+    }
+
+    res.send('image processed');
 }
 
