@@ -76,6 +76,7 @@ exports.post_items_needed = function (req, res){
     const items = req.body.items;
     var sql = '';
 
+    var updatedPhone = "1" + phone;
     for(let i=0; i<items.length; i++) {
         const itemId = items[i].itemId;
         sql = 'select ItemId from item where itemId = ' + itemId ;
@@ -86,7 +87,7 @@ exports.post_items_needed = function (req, res){
                 con.query(sql2, function(err, result){
                     if(err) throw err;
                     var insertedId = result.insertId;
-                    var sql3 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + phone + "', " + insertedId + ")";
+                    var sql3 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + updatedPhone + "', " + insertedId + ")";
                     con.query(sql3, function(err, result){
                         if (err) throw err;
                     })
@@ -94,7 +95,7 @@ exports.post_items_needed = function (req, res){
             }
             else if(result[0].ItemId == itemId){
                 // just insert request row
-                var sql2 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + phone + "', " + itemId + ")";
+                var sql2 = "insert request (customerName, phoneNumber, itemId) values ('" + name + "', '" + updatedPhone + "', " + itemId + ")";
                 con.query(sql2, function(err, result){
                     if(err) throw err;
                 })

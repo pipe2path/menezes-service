@@ -3,10 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b6402ae0-ea3a-4b09-852c-b2f56b0a79c3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/common/database.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/common/database.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/controllers/mainController.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/mainController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +58,7 @@
       <workItem from="1587246677828" duration="6991000" />
       <workItem from="1587275640161" duration="16141000" />
       <workItem from="1587359557444" duration="881000" />
-      <workItem from="1587527171282" duration="35001000" />
+      <workItem from="1587527171282" duration="37194000" />
     </task>
     <servers />
   </component>
@@ -199,41 +197,35 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/api/common/database.js</url>
-          <line>30</line>
+          <line>23</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/api/common/database.js</url>
-          <line>25</line>
+          <line>18</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/api/controllers/mainController.js</url>
-          <line>79</line>
+          <line>80</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/api/controllers/mainController.js</url>
-          <line>139</line>
+          <line>140</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="58" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/api/controllers/mainController.js</url>
-          <line>132</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="59" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/api/controllers/mainController.js</url>
-          <line>119</line>
+          <line>120</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="60" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/api/controllers/mainController.js</url>
-          <line>158</line>
+          <line>159</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="61" />
         </line-breakpoint>
