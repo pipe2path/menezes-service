@@ -118,11 +118,12 @@ exports.post_img_submit = function(req, res){
             "r.customerName, r.phoneNumber, r.requestId, i.orderId from image i " +
             "inner join item it on i.itemId = it.itemId inner join request r on i.itemid = r.itemid " +
             "where r.itemId = " + itemId + " and r.requestid not in (select requestid from transmission)" ;
+        console.log(sql);
         con.query(sql, function(err, result){
             if (err) throw err;
             result.forEach(function(result) {
-                const mapLink = (result.latitude != '' ? 'http://google.com/maps/place/' + result.latitude + ',' + result.longitude : '');
-                var textMsg = 'Hello + ' + result.name + '!. The item you requested has been found!\n';
+                const mapLink = (result.latitude != undefined ? 'http://google.com/maps/place/' + result.latitude + ',' + result.longitude : '');
+                var textMsg = 'Hello ' + result.customerName + '! The item you requested has been found!\n';
                 textMsg = (result.submittedBy != '' ? textMsg + result.submittedBy + ' found it at ' + result.store + '.' : textMsg );
                 textMsg = (result.notes != '' ? textMsg + '\nNotes: ' + result.notes : textMsg);
                 textMsg = (lat != '' ? textMsg + '\nMap it here: ' + mapLink : '')
