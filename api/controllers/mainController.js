@@ -60,7 +60,11 @@ exports.post_items_needed = function (req, res){
 exports.post_img_submit = function(req, res){
     const itemId = req.body.itemId;
     const submittedBy = req.body.name;
+    const notes = req.body.notes;
+    const store = req.body.store;
     const imageData = req.body.image;
+    const lat = req.body.lat;
+    const long = req.body.long;
 
     //aws.config.loadFromPath('./config.json');
     res.setHeader('Access-Control-Allow-Origin','*');
@@ -72,6 +76,7 @@ exports.post_img_submit = function(req, res){
 
     let buf = new Buffer.from(imageData.replace(/^data:image\/\w+;base64,/, ""),'base64')
     var s3Bucket = new aws.S3( { accessKeyId: process.env.S3_KEY, secretAccessKey: process.env.S3_SECRET, params: {Bucket: 'mzsgarage-images'} } );
+    //var s3Bucket = new aws.S3( { accessKeyId: 'AKIAYYCL6MZ2BEZGUY6W', secretAccessKey: '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', params: {Bucket: 'mzsgarage-images'} } );
     var data = {
         Key: filename,
         Body: buf,
@@ -92,10 +97,14 @@ exports.post_img_submit = function(req, res){
 
     function updateDB() {
         imagePath = 'https://s3-us-west-1.amazonaws.com/mzsgarage-images/' + filename;
+        var a_submittedBy = submittedBy.replace(/'/g,"''");
+        var a_store = store.replace(/'/g,"''");
+        var a_notes = notes.replace(/'/g,"''");
 
         // update database
-        var sql = "insert image (itemId, submittedBy, submitDate, image) values(" +
-            itemId + ", '" + submittedBy + "', '" + dateLocal + "', '" + imagePath + "')";
+        var sql = "insert image (itemId, submittedBy, store, submitDate, notes, image, latitude, longitude) values(" +
+            itemId + ", '" + a_submittedBy + "', '" + a_store + "', '" + dateLocal + "', '" + a_notes + "', '" + imagePath +
+            "', '" + lat + "', '" + long + "')";
         con.query(sql);
     }
 
@@ -104,20 +113,31 @@ exports.post_img_submit = function(req, res){
         const smsAccountId = process.env.SMSACCOUNTID;
         const smsAccountToken = process.env.SMSACCOUNTTOKEN;
         var client = require('twilio')(smsAccountId, smsAccountToken);
-        sql = "select it.name, it.brand, i.submittedBy, i.submitDate, i.image, r.customerName, r.phoneNumber from image i " +
+
+        sql = "select it.name, it.brand, i.submittedBy, i.store, i.notes, i.submitDate, i.image, i.latitude, i.longitude, " +
+            "r.customerName, r.phoneNumber, r.requestId, i.orderId from image i " +
             "inner join item it on i.itemId = it.itemId inner join request r on i.itemid = r.itemid " +
             "where r.itemId = " + itemId + " and r.requestid not in (select requestid from transmission)" ;
         con.query(sql, function(err, result){
             if (err) throw err;
             result.forEach(function(result) {
+                const mapLink = (result.latitude != '' ? 'http://google.com/maps/place/' + result.latitude + ',' + result.longitude : '');
+                var textMsg = 'Hello + ' + result.name + '!. The item you requested has been found!\n';
+                textMsg = (result.submittedBy != '' ? textMsg + result.submittedBy + ' found it at ' + result.store + '.' : textMsg );
+                textMsg = (result.notes != '' ? textMsg + '\nNotes: ' + result.notes : textMsg);
+                textMsg = (lat != '' ? textMsg + '\nMap it here: ' + mapLink : '')
                 client.messages.create({
-                    body: 'The item you requested has been found.' + result.submittedBy + ' found it.',
+                    body: textMsg ,
                     from: '+19092459877',
                     mediaUrl: [result.image],
                     to: result.phoneNumber
                 }).then(message => console.log(message.status)).done();
-            })
 
+                // insert into transmission table
+                sql = "insert into transmission (requestId, dateSent, orderId) values (" + result.requestId + ", '" +
+                      dateLocal + "', " + result.orderId + ")";
+                con.query(sql);
+            })
         })
     }
 
