@@ -76,7 +76,6 @@ exports.post_img_submit = function(req, res){
 
     let buf = new Buffer.from(imageData.replace(/^data:image\/\w+;base64,/, ""),'base64')
     var s3Bucket = new aws.S3( { accessKeyId: process.env.S3_KEY, secretAccessKey: process.env.S3_SECRET, params: {Bucket: 'mzsgarage-images'} } );
-    //var s3Bucket = new aws.S3( { accessKeyId: 'AKIAYYCL6MZ2BEZGUY6W', secretAccessKey: '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', params: {Bucket: 'mzsgarage-images'} } );
     var data = {
         Key: filename,
         Body: buf,
@@ -123,7 +122,7 @@ exports.post_img_submit = function(req, res){
             if (err) throw err;
             result.forEach(function(result) {
                 const mapLink = (result.latitude != undefined ? 'http://google.com/maps/place/' + result.latitude + ',' + result.longitude : '');
-                var textMsg = 'Hello ' + result.customerName + '! The item you requested has been found!\n';
+                var textMsg = 'Hello' + result.customerName + '! The item you requested has been found!\n';
                 textMsg = (result.submittedBy != '' ? textMsg + result.submittedBy + ' found it at ' + result.store + '.' : textMsg );
                 textMsg = (result.notes != '' ? textMsg + '\nNotes: ' + result.notes : textMsg);
                 textMsg = (lat != '' ? textMsg + '\nMap it here: ' + mapLink : '')
