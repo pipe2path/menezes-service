@@ -42,6 +42,7 @@ exports.post_items_needed = function (req, res){
                         + name + "', '" + updatedPhone + "', " + insertedId + ", '" + dateLocal + "')";
                     con.query(sql3, function(err, result){
                         if (err) throw err;
+                        sendSMS(insertedId);
                     })
                 })
             }
@@ -51,6 +52,7 @@ exports.post_items_needed = function (req, res){
                     + name + "', '" + updatedPhone + "', " + itemId + ", '" + dateLocal + "')";
                 con.query(sql2, function(err, result){
                     if(err) throw err;
+                    sendSMS(itemId);
                 })
             }
         })
@@ -90,7 +92,7 @@ exports.post_img_submit = function(req, res){
         } else {
             console.log('successfully uploaded to S3.');
             updateDB();
-            sendSMS();
+            sendSMS(itemId);
         }
     });
 
@@ -107,40 +109,42 @@ exports.post_img_submit = function(req, res){
         con.query(sql);
     }
 
-    function sendSMS(){
-        // send mms message
-        const smsAccountId = process.env.SMSACCOUNTID;
-        const smsAccountToken = process.env.SMSACCOUNTTOKEN;
-        var client = require('twilio')(smsAccountId, smsAccountToken);
-
-        sql = "select it.name, it.brand, i.submittedBy, i.store, i.notes, i.submitDate, i.image, i.latitude, i.longitude, " +
-            "r.customerName, r.phoneNumber, r.requestId, i.orderId from image i " +
-            "inner join item it on i.itemId = it.itemId inner join request r on i.itemid = r.itemid " +
-            "where r.itemId = " + itemId + " and r.requestid not in (select requestid from transmission)" ;
-        console.log(sql);
-        con.query(sql, function(err, result){
-            if (err) throw err;
-            result.forEach(function(result) {
-                const mapLink = (result.latitude != undefined ? 'http://google.com/maps/place/' + result.latitude + ',' + result.longitude : '');
-                var textMsg = 'Hello' + result.customerName + '! The item you requested has been found!\n';
-                textMsg = (result.submittedBy != '' ? textMsg + result.submittedBy + ' found it at ' + result.store + '.' : textMsg );
-                textMsg = (result.notes != '' ? textMsg + '\nNotes: ' + result.notes : textMsg);
-                textMsg = (lat != '' ? textMsg + '\nMap it here: ' + mapLink : '')
-                client.messages.create({
-                    body: textMsg ,
-                    from: '+19092459877',
-                    mediaUrl: [result.image],
-                    to: result.phoneNumber
-                }).then(message => console.log(message.status)).done();
-
-                // insert into transmission table
-                sql = "insert into transmission (requestId, dateSent, orderId) values (" + result.requestId + ", '" +
-                      dateLocal + "', " + result.orderId + ")";
-                con.query(sql);
-            })
-        })
-    }
-
     res.send('image processed');
 }
 
+function sendSMS(itemId){
+    // send mms message
+    const smsAccountId = process.env.SMSACCOUNTID;
+    const smsAccountToken = process.env.SMSACCOUNTTOKEN;
+    var client = require('twilio')(smsAccountId, smsAccountToken);
+
+    var dateLocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
+        ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
+
+    sql = "select it.name, it.brand, i.submittedBy, i.store, i.notes, i.submitDate, i.image, i.latitude, i.longitude, " +
+        "r.customerName, r.phoneNumber, r.requestId, i.orderId from image i " +
+        "inner join item it on i.itemId = it.itemId inner join request r on i.itemid = r.itemid " +
+        "where r.itemId = " + itemId + " and DATE(i.submitDate) =  CURDATE() and r.requestid not in (select requestid from transmission)" ;
+    console.log(sql);
+    con.query(sql, function(err, result){
+        if (err) throw err;
+        result.forEach(function(result) {
+            const mapLink = (result.latitude != undefined ? 'http://google.com/maps/place/' + result.latitude + ',' + result.longitude : '');
+            var textMsg = 'Hello ' + result.customerName + '!\nThe item you requested has been found!\n';
+            textMsg = (result.submittedBy != '' ? textMsg + result.submittedBy + ' found it at ' + result.store + '.' : textMsg );
+            textMsg = (result.notes != '' ? textMsg + '\nNotes: ' + result.notes : textMsg);
+            textMsg = (result.latitude != '' ? textMsg + '\nMap it here: ' + mapLink : '')
+            client.messages.create({
+                body: textMsg ,
+                from: '+19092459877',
+                mediaUrl: [result.image],
+                to: result.phoneNumber
+            }).then(message => console.log(message.status)).done();
+
+            // insert into transmission table
+            sql = "insert into transmission (requestId, dateSent, orderId) values (" + result.requestId + ", '" +
+                dateLocal + "', " + result.orderId + ")";
+            con.query(sql);
+        })
+    })
+}
