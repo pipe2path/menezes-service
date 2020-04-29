@@ -93,7 +93,7 @@ npm run setup
 npm start
 ```
 
-5. Navigate to [http://localhost:4050](http://localhost:4050)
+5. Navigate to [http://localhost:3050](http://localhost:3050)
 
 ## Cloud deployment
 You can deploy this application to variety of host services. I have used Heroku which offers a great mix of deployment options and additional resources
