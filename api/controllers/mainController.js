@@ -8,9 +8,10 @@ logger.level = 'debug';
 
 exports.get_items_needed = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    sql = "select i.itemId, i.name, i.brand from item i left join request r on i.itemId = r.itemId " +
-        "group by i.itemId, i.name, i.brand";
-
+    sql = "select i.itemId, i.name, i.brand, " +
+        " (select count(*) from request r left join transmission t on r.requestId = t.requestId where r.itemId = i.itemId and t.transmissionId is null) as openItems" +
+        " from item i left join request r on i.itemId = r.itemId" +
+        " group by i.itemId, i.name, i.brand";
     con.query(sql, function (err, result) {
         if (err) throw err;
         res.send(result);
