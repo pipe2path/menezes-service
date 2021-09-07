@@ -7,18 +7,18 @@ var db_config = {
     password: process.env.DBPASSWORD
 }
 
-var db_config_direct = {
-    host: 'un0jueuv2mam78uv.cbetxkdyhwsb.us-east-1.rds.amazonaws.com', 
-    database: 'pl9mj0om513j938e',
-    user: 'z9ky31glckau4xg7',
-    password: 'svcxbnfe4e3422qh'
-}
+// var db_config_direct = {
+//     host: 'un0jueuv2mam78uv.cbetxkdyhwsb.us-east-1.rds.amazonaws.com', 
+//     database: 'pl9mj0om513j938e',
+//     user: 'z9ky31glckau4xg7',
+//     password: 'svcxbnfe4e3422qh'
+// }
 
 
 handleDisconnect();
 
 function handleDisconnect() {
-    con = mysql.createConnection(db_config_direct); // Recreate the connection, since
+    con = mysql.createConnection(db_config); // Recreate the connection, since
                                                     // the old one cannot be reused.
 
     con.connect(function(err) {              // The server is either down
