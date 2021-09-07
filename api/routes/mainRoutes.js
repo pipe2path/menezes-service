@@ -1,5 +1,6 @@
 module.exports = function(app){
     var main = require('../controllers/mainController.js');
+    var waterflow = require('../controllers/waterflowcontroller');
 
     // app.route('/sensor')
     //     .get(main.get_sensor_reading)
@@ -9,10 +10,15 @@ module.exports = function(app){
     //     .post(main.post_traffic_reading);
 
     // twilio-hack-coronavirus project Apr, 2020
-    app.route('/items')
-        .get(main.get_items_needed)
-        .post(main.post_items_needed);
+    // app.route('/items')
+    //     .get(main.get_items_needed)
+    //     .post(main.post_items_needed);
 
-    app.route('/upload')
-        .post(main.post_img_submit);
+    // app.route('/upload')
+    //     .post(main.post_img_submit);
+
+    // water flow sensor readings project with Lu.    
+    app.route('/waterflow')
+        .get(waterflow.get_sensor_readings)
+        .post(waterflow.post_sensor_reading);    
 }
