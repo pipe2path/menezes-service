@@ -5,7 +5,12 @@ var con = require('../common/database.js');
 logger.level = 'debug';
 
 exports.get_sensor_readings = function(req, res){
-    res.send('readings ...');
+    res.setHeader('Access-Control-Allow-Origin','*');
+    var sql = "select * from water_reading";
+    con.query(sql, function(err, result){    
+        if(err) throw err;      
+        res.send(result);
+    })   
 }
 
 exports.post_sensor_reading = function(req, res){
