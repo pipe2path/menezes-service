@@ -6,7 +6,7 @@ logger.level = 'debug';
 
 exports.get_sensor_readings = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    var sql = "select * from water_reading order by reading_dt desc";
+    var sql = "select reading_id, device_id, reading, DATE_FORMAT(reading_dt, GET_FORMAT(DATETIME, 'USA')) as reading_dt from water_reading order by reading_dt desc";
     con.query(sql, function(err, result){    
         if(err) throw err;      
         res.send(result);
