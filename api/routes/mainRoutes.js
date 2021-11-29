@@ -25,5 +25,6 @@ module.exports = function(app){
     
     // comm_alert readings
     app.route('/alert')
-        .get(comm_alert.get_alert_reading);
+        .get(comm_alert.get_alert_reading)
+        .post(comm_alert.post_alert_reading);
 }
