@@ -9,6 +9,6 @@ exports.get_alert_reading = function(req, res){
     var sql = "select comm_alert_id, alert, DATE_FORMAT(timestamp, GET_FORMAT(DATETIME, 'USA')) as alert_dt from comm_alert order by timestamp desc limit 1";
     con.query(sql, function(err, result){    
         if(err) throw err;      
-        res.send(result);
+        res.send(result[0]);
     })   
 }
