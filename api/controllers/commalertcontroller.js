@@ -22,8 +22,8 @@ exports.post_alert_reading = function(req, res){
 
     let sql =  "insert into comm_alert (alert, timestamp) values (" + alert + ",'" + dateLocal + "')" ;   
     con.query(sql, function(err, result){    
-        if(err) throw err;      
-           res.send('reading successfully posted');
+        if(err) throw err;
+        res.send({'msg': 'reading successfully posted'});
     })       
 
-}
+} 

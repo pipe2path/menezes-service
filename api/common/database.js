@@ -1,10 +1,17 @@
 var mysql = require('mysql');
 
+// var db_config = {
+//     host: process.env.DBHOST,
+//     database: process.env.DATABASE,
+//     user: process.env.DBUSER,
+//     password: process.env.DBPASSWORD
+// }
+
 var db_config = {
-    host: process.env.DBHOST,
-    database: process.env.DATABASE,
-    user: process.env.DBUSER,
-    password: process.env.DBPASSWORD
+    host: 'un0jueuv2mam78uv.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
+    database: 'pl9mj0om513j938e',
+    user: 'z9ky31glckau4xg7',
+    password: 'svcxbnfe4e3422qh'
 }
 
 handleDisconnect();
