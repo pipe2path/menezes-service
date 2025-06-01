@@ -60,6 +60,17 @@ exports.post_items_needed = function (req, res){
     }
 }
 
+exports.post_lora_data = function(req, res){
+    let message = req.query.message;
+    
+    res.setHeader('Access-Control-Allow-Origin','*');
+    var sql = "insert lora_data (data) values ('"+ message + "')";
+    con.query(sql, function(err, result){
+        if (err) throw err;
+        res.send(result);
+    });
+}
+
 exports.post_img_submit = function(req, res){
     const itemId = req.body.itemId;
     const submittedBy = req.body.name;
