@@ -48,6 +48,7 @@ module.exports = function(app){
 
     // post_lora_data
     app.route('/lora')
+        .get(main.get_lora_data)
         .post(main.post_lora_data);
         
 }

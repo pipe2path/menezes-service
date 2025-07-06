@@ -60,6 +60,15 @@ exports.post_items_needed = function (req, res){
     }
 }
 
+exports.get_lora_data = function(req, res){
+    res.setHeader('Access-Control-Allow-Origin','*');
+    sql = "SELECT * FROM pl9mj0om513j938e.lora_data ORDER BY DATE_CREATED DESC LIMIT 500";
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        res.send(result);
+    });
+} 
+
 exports.post_lora_data = function(req, res){
     let message = req.query.message;
     
