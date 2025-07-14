@@ -80,6 +80,17 @@ exports.post_lora_data = function(req, res){
     });
 }
 
+exports.post_lora_data_json = function(req, res){
+    let requestBody = req.body;
+    
+    res.setHeader('Access-Control-Allow-Origin','*');
+    var sql = "insert lora_data (data) values ('"+ requestBody.data + "')";
+    con.query(sql, function(err, result){
+        if (err) throw err;
+        res.send(result);
+    });
+}
+
 exports.post_img_submit = function(req, res){
     const itemId = req.body.itemId;
     const submittedBy = req.body.name;
