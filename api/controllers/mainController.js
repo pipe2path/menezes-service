@@ -83,11 +83,14 @@ exports.post_lora_data = function(req, res){
 exports.post_lora_data_json = function(req, res){
     console.log(req.body);
     let requestBody = req.body;
-    //let requestData = requestBody.data.split(',');
+    let requestData = requestBody.data.split(',');
+    let nodeId = requestData[0];
+    let msgId = requestData[1];
+    let msg = requestData[2];
     
     res.setHeader('Access-Control-Allow-Origin','*');
     //var sql = "insert lora_data (data) values ('"+ requestBody.data + "')";
-    var sql = "insert lora_messages (nodeId, messageId, message) values ('1', '2','" + requestBody.data + "')";
+    var sql = "insert lora_messages (nodeId, messageId, message) values ('" + nodeId + "','" + msgId + "','" + msg + "')";
     //var sql = "insert lora_messages (nodeId, messageId, message) values ('" + requestData[0] + "', '" + requestData[1] + "', '" + requestData[2] + "')";
     con.query(sql, function(err, result){
         if (err) throw err;
