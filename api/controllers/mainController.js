@@ -81,12 +81,13 @@ exports.post_lora_data = function(req, res){
 }
 
 exports.post_lora_data_json = function(req, res){
+    console.log(req.body);
     let requestBody = req.body;
     let requestData = requestBody.data.split(',');
     
     res.setHeader('Access-Control-Allow-Origin','*');
     //var sql = "insert lora_data (data) values ('"+ requestBody.data + "')";
-    var sql = "insert lora_messages (nodeId, messageId, message) values ('"+ requestData[0] + "', '" + requestData[1] + "', '" + requestData[2] + "')";
+    var sql = "insert lora_messages (nodeId, messageId, message) values ('" + requestData[0] + "', '" + requestData[1] + "', '" + requestData[2] + "')";
     con.query(sql, function(err, result){
         if (err) throw err;
         res.send(result);
