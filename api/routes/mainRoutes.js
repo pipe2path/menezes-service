@@ -35,6 +35,10 @@ module.exports = function(app){
         .get(comm_alert.get_alert_reading)
         .post(comm_alert.post_alert_reading);
 
+    app.route('/dht')
+        .get(main.get_temperature_reading)
+        .post(main.post_temperature_reading);
+    
     // refugee camp - hackathon Azure AI
     // app.route('/rfgcamp/:camp_id/images')
     //     .get(refugee_camp.get_images);

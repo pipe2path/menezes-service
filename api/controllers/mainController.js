@@ -6,13 +6,38 @@ var path = require("path");
 
 logger.level = 'debug';
 
+exports.get_temperature_reading = function(req, res){
+    res.setHeader('Access-Control-Allow-Origin','*');
+    let sql = "select id, humidity, temperature, DATE_FORMAT(created_date, GET_FORMAT(DATETIME, 'USA')) as created_date from dht_data order by created_date desc limit 1";
+    con.query(sql, function(err, result){    
+        if(err) throw err;      
+        res.send(result[0]);
+    })   
+}
+
+exports.post_temperature_reading = function(req, res){
+    res.setHeader('Access-Control-Allow-Origin','*');
+    const humidity = req.query.humidity;
+    const temperature = req.query.temperature;
+
+    let dateLocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
+        ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
+
+    let sql =  "insert into dht_data (humidity, temperature, created_date) values ('" + humidity + "','" + temperature + "','" + dateLocal + "')" ;   
+    con.query(sql, function(err, result){    
+        if(err) throw err;
+        res.send({'msg': 'reading successfully posted'});
+    })       
+
+} 
+
 exports.get_items_needed = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    sql = "select i.itemId, i.name, i.brand, " +
+    const sql = "select i.itemId, i.name, i.brand, " +
         " (select count(*) from request r left join transmission t on r.requestId = t.requestId where r.itemId = i.itemId and t.transmissionId is null) as openItems" +
         " from item i left join request r on i.itemId = r.itemId" +
         " group by i.itemId, i.name, i.brand";
-    con.query(sql, function (err, result) {
+    con.query(sql, [], function (err, result) {
         if (err) throw err;
         res.send(result);
     });
@@ -87,16 +112,31 @@ exports.post_lora_data_json = function(req, res){
     let nodeId = requestData[0];
     let msgId = requestData[1];
     let msg = requestData[2];
-    
+    let exists = 0;
+
     res.setHeader('Access-Control-Allow-Origin','*');
-    //var sql = "insert lora_data (data) values ('"+ requestBody.data + "')";
-    var sql = "insert lora_messages (nodeId, messageId, message) values ('" + nodeId + "','" + msgId + "','" + msg + "')";
-    //var sql = "insert lora_messages (nodeId, messageId, message) values ('" + requestData[0] + "', '" + requestData[1] + "', '" + requestData[2] + "')";
-    con.query(sql, function(err, result){
-        if (err) throw err;
-        res.send(result);
-    });
+    var sql = "SELECT IF(EXISTS(SELECT 1 FROM lora_messages WHERE messageId = " + msgId + "), 1, 0) as messageId_exists";
+    
+    try {
+        con.query(sql, function(err, result){
+            if (err) throw err;
+                exists = result;
+        });
+        
+        if (exists == "0"){
+            sql = "insert lora_messages (nodeId, messageId, message) values ('" + nodeId + "','" + msgId + "','" + msg + "')";
+            //var sql = "insert lora_messages (nodeId, messageId, message) values ('" + requestData[0] + "', '" + requestData[1] + "', '" + requestData[2] + "')";
+            con.query(sql, function(err, result){
+                if (err) throw err;
+                res.send(result);
+            });
+        }
+    } catch (err){
+        console.log(err);
+        throw err;
+    }
 }
+
 
 exports.post_img_submit = function(req, res){
     const itemId = req.body.itemId;
