@@ -17,8 +17,8 @@ exports.get_temperature_reading = function(req, res){
 
 exports.post_temperature_reading = function(req, res){
     res.setHeader('Access-Control-Allow-Origin','*');
-    const humidity = req.query.humidity;
-    const temperature = req.query.temperature;
+    const humidity = req.body.humidity;
+    const temperature = req.body.temperature;
 
     let dateLocal = (new Date ((new Date((new Date(new Date())).toISOString() )).getTime() -
         ((new Date()).getTimezoneOffset()*60000))).toISOString().slice(0, 19).replace('T', ' ');
